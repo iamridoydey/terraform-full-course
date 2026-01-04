@@ -1,6 +1,6 @@
 resource "azurerm_virtual_network" "prite_vnet" {
   name                = "prite_vnet"
-  address_space       = ["10.0.0.0/16"]
+  address_space       = [element(var.ip_configuration, 0)]
   location            = azurerm_resource_group.prite_rg.location
   resource_group_name = azurerm_resource_group.prite_rg.name
 }
@@ -8,8 +8,8 @@ resource "azurerm_virtual_network" "prite_vnet" {
 resource "azurerm_subnet" "prite_subnet" {
   name                 = "internal"
   resource_group_name  = azurerm_resource_group.prite_rg.name
-  virtual_network_name = azurerm_virtual_network.prite_rg.name
-  address_prefixes     = ["10.0.2.0/24"]
+  virtual_network_name = azurerm_virtual_network.prite_vnet.name
+  address_prefixes     = ["${element(var.ip_configuration, 1)}/${element(var.ip_configuration, 2)}"]
 }
 
 resource "azurerm_network_interface" "prite_nic" {
@@ -19,7 +19,17 @@ resource "azurerm_network_interface" "prite_nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.example.id
+    subnet_id                     = azurerm_subnet.prite_subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.prite_pip.id
   }
+}
+
+
+resource "azurerm_public_ip" "prite_pip" {
+  name                = "prite-pip"
+  resource_group_name = azurerm_resource_group.prite_rg.name
+  location            = azurerm_resource_group.prite_rg.location
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }

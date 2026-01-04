@@ -1,3 +1,3 @@
-output "storage_account_id" {
-  value = azurerm_storage_account.prite_sa.id
+output "virtual_machine_ip_address" {
+  value = azurerm_linux_virtual_machine.prite_vm.public_ip_address
 }
