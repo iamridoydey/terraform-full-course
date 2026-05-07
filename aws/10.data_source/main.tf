@@ -16,7 +16,6 @@ resource "aws_subnet" "example_subnet" {
 resource "aws_instance" "prite_ec2" {
   ami   = var.ubuntu_ami
   subnet_id = aws_subnet.example_subnet.id
-  private_ip = 
   count = var.instance_count
 
   tags = {
